@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import joblib
-import gdown
 import os
 
 # --- Page config ---
@@ -15,15 +14,11 @@ Predict the **top 3 items** a customer is likely to order next.
 The most probable item is highlighted with probability bars.
 """)
 
-# --- Google Drive model download ---
-MODEL_PATH = "final_model.pkl"
-GDRIVE_URL = "https://drive.google.com/uc?id=1JuH6edg-8u3IiKAHV3KgaMNOIxBfOdnW"
-
+# --- Load model, encoders, scaler, and dataset ---
+MODEL_PATH = "final_model.pkl"  # Make sure this file is in your GitHub repo
 if not os.path.exists(MODEL_PATH):
-    with st.spinner("Downloading model from Google Drive..."):
-        gdown.download(GDRIVE_URL, MODEL_PATH, quiet=False)
+    st.error("Model file not found. Please ensure 'final_model.pkl' is in the repo.")
 
-# --- Load artifacts ---
 @st.cache_data
 def load_artifacts():
     model = joblib.load(MODEL_PATH)
@@ -83,7 +78,7 @@ with tab1:
             else:
                 sample_df[col] = df[col].mode()[0]
 
-        # Reorder columns as scaler expects
+        # Reorder columns exactly as scaler expects
         sample_df = sample_df[scaler.feature_names_in_]
 
         # Scale features
