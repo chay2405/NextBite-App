@@ -15,13 +15,15 @@ Predict the **top 3 items** a customer is likely to order next.
 The most probable item is highlighted with probability bars.
 """)
 
-# --- Download and load final_model.pkl from Google Drive ---
+# --- Google Drive model download ---
 MODEL_PATH = "final_model.pkl"
-if not os.path.exists(MODEL_PATH):
-    url = "https://drive.google.com/uc?id=1JuH6edg-8u3IiKAHV3KgaMNOIxBfOdnW"
-    gdown.download(url, MODEL_PATH, quiet=False)
+GDRIVE_URL = "https://drive.google.com/uc?id=1JuH6edg-8u3IiKAHV3KgaMNOIxBfOdnW"
 
-# --- Load encoders, scaler, and dataset ---
+if not os.path.exists(MODEL_PATH):
+    with st.spinner("Downloading model from Google Drive..."):
+        gdown.download(GDRIVE_URL, MODEL_PATH, quiet=False)
+
+# --- Load artifacts ---
 @st.cache_data
 def load_artifacts():
     model = joblib.load(MODEL_PATH)
@@ -81,10 +83,10 @@ with tab1:
             else:
                 sample_df[col] = df[col].mode()[0]
 
-        # Reorder columns exactly as scaler expects
+        # Reorder columns as scaler expects
         sample_df = sample_df[scaler.feature_names_in_]
 
-        # Scale
+        # Scale features
         sample_scaled = scaler.transform(sample_df)
 
         # Predict probabilities
@@ -104,7 +106,7 @@ with tab1:
     if st.button("Predict Next Items"):
         top3 = predict_top3()
 
-        # Display side-by-side cards
+        # Side-by-side cards
         st.subheader("Top 3 Predicted Items")
         col1, col2, col3 = st.columns(3)
         columns = [col1, col2, col3]
